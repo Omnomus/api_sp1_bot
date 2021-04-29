@@ -17,6 +17,7 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 
 def get_homework_statuses(current_timestamp):
+    """Make a request to API."""
     params = {'from_date': current_timestamp}
     headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
     homework_statuses = requests.get(
@@ -27,6 +28,7 @@ def get_homework_statuses(current_timestamp):
 
 
 def parse_homework_status(homework):
+    """Get reviewer's verdict API answer."""
     homework_name = homework.get('homework_name')
     if homework.get('status') != 'approved':
         verdict = 'К сожалению в работе нашлись ошибки.'
@@ -37,11 +39,13 @@ def parse_homework_status(homework):
 
 
 def send_message(message, bot_client):
+    """Send message with reviewer's verdict."""
     logging.info('Отправка сообщения')
     return bot_client.send_message(chat_id=CHAT_ID, text=message)
 
 
 def main():
+    """Start the bot."""
     logging.debug('Запуск бота')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
