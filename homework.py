@@ -5,7 +5,6 @@ import time
 import requests
 import telegram
 from dotenv import load_dotenv
-from telegram.ext import Updater
 
 load_dotenv()
 
@@ -43,8 +42,8 @@ def send_message(message, bot_client):
 def main():
     # проинициализировать бота здесь
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    updater = Updater(token=TELEGRAM_TOKEN)
-    current_timestamp = 1617263464  # начальное значение timestamp
+    # updater = Updater(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())  # начальное значение timestamp
 
     while True:
         try:
@@ -57,10 +56,9 @@ def main():
 
         except Exception as e:
             print(f'Бот столкнулся с ошибкой: {e}')
+            logging.error(e, exc_info=True)
             send_message(e, bot)
             time.sleep(5)
-
-    updater.start_polling()
 
 
 if __name__ == '__main__':
