@@ -18,7 +18,7 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 def get_homework_statuses(current_timestamp):
     """Make a request to API."""
-    params = {'from_date': current_timestamp}
+    params = {'from_date': 0}
     headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
     homework_statuses = requests.get(
         'https://praktikum.yandex.ru/api/user_api/homework_statuses/',
@@ -59,7 +59,7 @@ def main():
                         new_homework.get('homeworks')[0]), bot)
             current_timestamp = new_homework.get(
                 'current_date', current_timestamp)
-            time.sleep(1200)
+            time.sleep(120)
 
         except Exception as e:
             print(f'Бот столкнулся с ошибкой: {e}')
