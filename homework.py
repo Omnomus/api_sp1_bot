@@ -31,28 +31,31 @@ def parse_homework_status(homework):
     if homework.get('status') != 'approved':
         verdict = 'К сожалению в работе нашлись ошибки.'
     else:
-        verdict = 'Ревьюеру всё понравилось, можно приступать к следующему уроку.'
+        verdict = ('Ревьюеру всё понравилось, '
+                   'можно приступать к следующему уроку.')
     return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
 
 
 def send_message(message, bot_client):
+    logging.info('Отправка сообщения')
     return bot_client.send_message(chat_id=CHAT_ID, text=message)
 
 
 def main():
-    # проинициализировать бота здесь
+    logging.debug('Запуск бота')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    # updater = Updater(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())  # начальное значение timestamp
+    current_timestamp = int(time.time())
 
     while True:
         try:
             new_homework = get_homework_statuses(current_timestamp)
             if new_homework.get('homeworks'):
-                send_message(parse_homework_status(new_homework.get('homeworks')[0]), bot)
-            current_timestamp = new_homework.get('current_date', current_timestamp)
-            # обновить timestamp
-            time.sleep(60)  # опрашивать раз в пять минут
+                send_message(
+                    parse_homework_status(
+                        new_homework.get('homeworks')[0]), bot)
+            current_timestamp = new_homework.get(
+                'current_date', current_timestamp)
+            time.sleep(1200)
 
         except Exception as e:
             print(f'Бот столкнулся с ошибкой: {e}')
