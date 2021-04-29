@@ -1,1 +1,1 @@
-worker: python homework.py
+worker: python api_sp1_bot/homework.py
