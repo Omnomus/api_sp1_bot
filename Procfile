@@ -1,1 +1,1 @@
-worker: python homework.py $PORT
+worker: python homework.py
