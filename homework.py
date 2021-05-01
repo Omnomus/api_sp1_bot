@@ -21,6 +21,7 @@ HW_STATUS = {'reviewing': 'Работа взята в ревью.',
              'rejected': 'К сожалению в работе нашлись ошибки.',
              }
 TIME_REQUEST = 1200
+TIME_ERROR = 60
 
 try:
     PRAKTIKUM_TOKEN = os.environ['PRAKTIKUM_TOKEN']
@@ -97,7 +98,7 @@ def main():
             message = f'Бот столкнулся с ошибкой: {e}'
             logging.error(e, exc_info=True)
             send_message(message, bot)
-            time.sleep(5)
+            time.sleep(TIME_ERROR)
 
 
 if __name__ == '__main__':
