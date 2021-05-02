@@ -11,7 +11,7 @@ load_dotenv()
 logging.basicConfig(level=logging.DEBUG,
                     filename='homework.log',
                     filemode='w',
-                    format='%(asctime)s, %(levelname)s, %(lineno)d, %(name)s, %(message)s')
+                    format='%(asctime)s, %(levelname)s, %(name)s, %(message)s')
 logger = logging.getLogger(__name__)
 
 API_URL = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
@@ -20,7 +20,7 @@ HW_STATUS = {'reviewing': 'Работа взята в ревью.',
                          'можно приступать к следующему уроку.',
              'rejected': 'К сожалению в работе нашлись ошибки.',
              }
-TIME_REQUEST = 1200
+TIME_REQUEST = 25
 TIME_ERROR = 60
 
 try:
@@ -30,40 +30,27 @@ try:
 except KeyError as error:
     message = (f'Переменная {error} не найдена.'
                ' Программа не может быть запущена.')
-    logging.error(message, exc_info=True)
+    logging.critical(message, exc_info=True)
     raise
 
 
 def get_homework_statuses(current_timestamp):
     """Make a request to API."""
-    params = {'from_date': 0}
+    params = {'from_date': current_timestamp}
     headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
     homework_statuses = requests.get(API_URL, params=params, headers=headers)
-    try:
-        homework_statuses.raise_for_status()
-    except requests.exceptions.HTTPError:
-        raise
-    else:
-        return homework_statuses.json()
+    return homework_statuses.json()
 
 
 def parse_homework_status(homework):
     """Get reviewer's verdict API answer."""
     try:
-        homework_name = homework.get('homework_name')
-        status = homework.get('status')
-    except KeyError as error:
-        message = f'В ответе API отсутствует поле {error}.'
-        logging.error(message, exc_info=True)
-        return {}
-    try:
+        homework_name = homework['homework_name']
+        status = homework['status']
         verdict = HW_STATUS[status]
-    except KeyError as error:
-        message = f'Статус домашней работы {error} не определен.'
-        logging.error(message, exc_info=True)
-        return {}
-    else:
-        return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
+    except KeyError:
+        raise KeyError('Ошибка парсинга ответа')
+    return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
 
 
 def send_message(message, bot_client):
@@ -82,17 +69,17 @@ def main():
         try:
             new_homework = get_homework_statuses(current_timestamp)
             if new_homework.get('homeworks'):
-                send_message(
-                    parse_homework_status(
-                        new_homework.get('homeworks')[0]), bot)
+                message = parse_homework_status(
+                    new_homework.get('homeworks')[0])
+                send_message(message, bot)
             current_timestamp = new_homework.get(
                 'current_date', current_timestamp)
-            time.sleep(TIME_REQUEST)
         except Exception as e:
             message = f'Бот столкнулся с ошибкой: {e}'
-            logging.error(e)
+            logging.error(message)
             send_message(message, bot)
-            time.sleep(TIME_ERROR)
+        finally:
+            time.sleep(TIME_REQUEST)
 
 
 if __name__ == '__main__':
