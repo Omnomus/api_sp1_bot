@@ -31,7 +31,7 @@ except KeyError as error:
     message = (f'Переменная {error} не найдена.'
                ' Программа не может быть запущена.')
     logging.error(message, exc_info=True)
-    raise SystemExit
+    raise
 
 
 def get_homework_statuses(current_timestamp):
@@ -44,7 +44,8 @@ def get_homework_statuses(current_timestamp):
     except requests.exceptions.HTTPError as error:
         message = f'Проблема с запросом: {error}'
         logging.error(message, exc_info=True)
-        return {}
+        raise
+    #    return message
     else:
         return homework_statuses.json()
 
