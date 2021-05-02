@@ -41,11 +41,8 @@ def get_homework_statuses(current_timestamp):
     homework_statuses = requests.get(API_URL, params=params, headers=headers)
     try:
         homework_statuses.raise_for_status()
-    except requests.exceptions.HTTPError as error:
-        message = f'Проблема с запросом: {error}'
-        logging.error(message, exc_info=True)
+    except requests.exceptions.HTTPError:
         raise
-    #    return message
     else:
         return homework_statuses.json()
 
@@ -57,10 +54,6 @@ def parse_homework_status(homework):
         status = homework.get('status')
     except KeyError as error:
         message = f'В ответе API отсутствует поле {error}.'
-        logging.error(message, exc_info=True)
-        return {}
-    except Exception as error:
-        message = f' !!!!{error}.'
         logging.error(message, exc_info=True)
         return {}
     try:
@@ -97,7 +90,7 @@ def main():
             time.sleep(TIME_REQUEST)
         except Exception as e:
             message = f'Бот столкнулся с ошибкой: {e}'
-            logging.error(e, exc_info=True)
+            logging.error(e)
             send_message(message, bot)
             time.sleep(TIME_ERROR)
 
