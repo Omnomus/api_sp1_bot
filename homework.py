@@ -15,14 +15,14 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s, %(levelname)s, %(name)s, %(message)s')
 logger = logging.getLogger(__name__)
 
-API_URL = 'https://praktikum.yandex.ru/ap/user_api/homework_statuses/'
+API_URL = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
 HW_STATUS = {'reviewing': 'Работа взята в ревью.',
              'approved': 'Ревьюеру всё понравилось, '
                          'можно приступать к следующему уроку.',
              'rejected': 'К сожалению в работе нашлись ошибки.',
              }
 TIME_REQUEST = 1200
-# TIME_ERROR = 60
+TIME_ERROR = 60
 
 try:
     PRAKTIKUM_TOKEN = os.environ['PRAKTIKUM_TOKEN']
@@ -43,7 +43,7 @@ def get_homework_statuses(current_timestamp):
     try:
         return homework_statuses.json()
     except json.decoder.JSONDecodeError:
-        logging.error('error URL')
+        logging.error('Проблемы на стороне сервера')
         return {}
 
 
@@ -92,12 +92,12 @@ def main():
                 send_message(message, bot)
             current_timestamp = new_homework.get(
                 'current_date', current_timestamp)
+            time.sleep(TIME_REQUEST)
         except Exception as e:
             message = f'Бот столкнулся с ошибкой: {e}'
             logging.error(message, exc_info=True)
             send_message(message, bot)
-        finally:
-            time.sleep(TIME_REQUEST)
+            time.sleep(TIME_ERROR)
 
 
 if __name__ == '__main__':
